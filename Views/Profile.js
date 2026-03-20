@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 export default function Profile({ navigation, route, onUpdate }) {
-    const userData = route.params.userData || {};
+    const userData = route.params?.userData || {};
 
     const [address, setAddress] = useState(userData.address || '');
     const [avatarUrl, setAvatarUrl] = useState(userData.avatarUrl || '');
@@ -18,14 +18,22 @@ export default function Profile({ navigation, route, onUpdate }) {
     
     const updateData = () => {
         onUpdate({
-            userName: userData.userName,
-            email: userData.email,
-            password: userData.password,
-            address,
-            avatarUrl,
-            description
+            userName: userData?.userName || '',
+            email: userData?.email || '',
+            password: userData?.password || '',
+            address: address,
+            avatarUrl: avatarUrl,
+            description: description
         });
     }
+
+    useEffect(() => {
+        if (route.params?.userData) {
+            setAddress(route.params.userData.address || '');
+            setAvatarUrl(route.params.userData.avatarUrl || '');
+            setDescription(route.params.userData.description || '');
+        }
+    }, [route.params?.userData]);
 
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -82,7 +90,6 @@ export default function Profile({ navigation, route, onUpdate }) {
                             style={styles.textInput} 
                             placeholder='about yourself'
                             multiline={true}
-                            numberOfLines={2}
                             value={description}
                             onChangeText={(text) => setDescription(text)}
                         />
@@ -92,18 +99,6 @@ export default function Profile({ navigation, route, onUpdate }) {
                         style={styles.button} 
                         onPress={updateData}>
                         <Text style={styles.buttonText}>Save</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={styles.button} 
-                        onPress={() => navigation.navigate('HomePage', {userData} )}>
-                        <Text style={styles.buttonText}>Home</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={styles.button} 
-                        onPress={() => navigation.navigate('Login')}>
-                        <Text style={styles.buttonText}>Logout</Text>
                     </TouchableOpacity>
                 </View>
             </View>

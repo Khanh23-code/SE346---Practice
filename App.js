@@ -4,8 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Register from './Views/Register';
 import Login from './Views/Login';
-import Profile from './Views/Profile';
-import HomePage from './Views/HomePage';
+import MainTabs from './MainTabs.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,13 +25,13 @@ export default function App() {
         user.email === newUserData.email ? newUserData : user
       )
     );
-    alert("Save data completely!");
+    Alert("Save data completely!");
   }
 
   const handleRegister = (newUser) => {
     const isExist = checkEmailExist(newUser);
     if (isExist) {
-      alert("This email had been used!");
+      Alert("This email had been used!");
       return false;
     }
 
@@ -50,11 +49,14 @@ export default function App() {
         <Stack.Screen name="Login">
           {props => <Login {...props} userList={userList} />}
         </Stack.Screen>
-        <Stack.Screen name="Profile">
-          {props => <Profile {...props} onUpdate={updateUserData} />}
-        </Stack.Screen>
-        <Stack.Screen name="HomePage">
-          {props => <HomePage {...props} userList={userList} />}
+        <Stack.Screen name="MainTabs" options={{ headerShown: false }}>
+          {props => (
+            <MainTabs 
+              {...props} 
+              userList={userList} 
+              onUpdate={updateUserData} 
+            />
+          )}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

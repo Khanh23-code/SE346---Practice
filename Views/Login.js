@@ -22,7 +22,11 @@ export default function Login({ navigation, userList }) {
 
                 if (logPassword === user.password) {
                     Alert.alert("Success", "Login successful!");
-                    navigation.navigate('Profile', { userData: user });
+                    navigation.navigate('MainTabs', {
+                        screen: 'HomePage', 
+                        params: { userData: user }, 
+                    }
+                );
                 } else {
                     Alert.alert("Error", "Invalid email or password!");
                 }
@@ -143,5 +147,12 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 18,
         fontWeight: 'bold',
-    }
+    },
+
+    forgotPass: {
+        color: '#f6803b',
+        textAlign: 'right',
+        marginTop: 8,
+        fontWeight: '600',
+    },
 });

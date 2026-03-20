@@ -10,9 +10,41 @@ import {
 } from 'react-native';
 
 export default class Register extends Component {
-    render() {
-        const { navigation } = this.props;
+    constructor(props) {
+        super(props);
+        this.state = {
+            userName: '',
+            regEmail: '',
+            regPassword: '',
+            confirmPassword: ''
+        };
+        this.handleCreatePress = this.handleCreatePress.bind(this);
+    }
 
+    handleCreatePress() {
+        const { userName, regEmail, regPassword, confirmPassword } = this.state;
+
+        if (regEmail && regPassword && confirmPassword) {
+            if (regPassword !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            this.props.onRegister({ 
+                userName: userName,
+                email: regEmail,
+                password: regPassword
+            });
+
+            alert("Account created successfully!");
+            this.props.navigation.navigate('Login');
+        
+        } else {
+            alert("Please fill in all fields!");
+        }
+    };
+
+    render() {
         return (
             <View style={styles.container}>
                 <View style={styles.menu}>  
@@ -20,34 +52,33 @@ export default class Register extends Component {
             
                     <View style={styles.block}>
                         <Text style={styles.label}>Name</Text>
-                        <TextInput style={styles.textInput} placeholder='test'/>
+                        <TextInput style={styles.textInput} placeholder='test'
+                        value={this.state.userName}
+                        onChangeText={(userName) => this.setState({ userName })}/>
                     </View>
                     
                     <View style={styles.block}>
                         <Text style={styles.label}>Email</Text>
                         <TextInput style={styles.textInput} placeholder='test@gmail.com' keyboardType='email-address'
-                        // value={this.state.regEmail}
-                        // onChangeText={(regEmail) => this.setState({ regEmail })}
-                        />
+                        value={this.state.regEmail}
+                        onChangeText={(regEmail) => this.setState({ regEmail })}/>
                     </View>
             
                     <View style={styles.block}>
                         <Text style={styles.label}>Password</Text>
                         <TextInput style={styles.textInput} placeholder='* * * *' secureTextEntry={true}
-                        // value={this.state.regPassword}
-                        // onChangeText={(regPassword) => this.setState({ regPassword })}
-                        />
+                        value={this.state.regPassword}
+                        onChangeText={(regPassword) => this.setState({ regPassword })}/>
                     </View>
             
                     <View style={styles.block}>
                         <Text style={styles.label}>Confirm Password</Text>
                         <TextInput style={styles.textInput} placeholder='* * * *' secureTextEntry={true}
-                        // value={this.state.confirmPassword}
-                        // onChangeText={(confirmPassword) => this.setState({ confirmPassword })}
-                        />
+                        value={this.state.confirmPassword}
+                        onChangeText={(confirmPassword) => this.setState({ confirmPassword })}/>
                     </View>
                     
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+                    <TouchableOpacity style={styles.button} onPress={this.handleCreatePress}>
                         <Text style={styles.buttonText}>Create</Text>
                     </TouchableOpacity>
                 </View>

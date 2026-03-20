@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import Register from './Register';
-import Login from './Login';
-import Profile from './Profile';
+import Register from './Views/Register';
+import Login from './Views/Login';
+import Profile from './Views/Profile';
+import HomePage from './Views/HomePage';
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +52,9 @@ export default function App() {
         </Stack.Screen>
         <Stack.Screen name="Profile">
           {props => <Profile {...props} onUpdate={updateUserData} />}
+        </Stack.Screen>
+        <Stack.Screen name="HomePage">
+          {props => <HomePage {...props} userList={userList} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

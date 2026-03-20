@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -7,86 +7,70 @@ import {
   TouchableOpacity,
   Alert 
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Register({ navigation, onRegister }) {
-    const [userName, setUserName] = useState('');
-    const [regEmail, setRegEmail] = useState('');
-    const [regPassword, setRegPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+export default function Login({ navigation, userList }) {
+    const [logEmail, setLogEmail] = useState('');
+    const [logPassword, setLogPassword] = useState('');
 
-    const handleCreatePress = () => {
-        if (regEmail && regPassword && confirmPassword) {
-            if (regPassword !== confirmPassword) {
-                Alert.alert("Error", "Passwords do not match!");
-                return;
+    const handleLoginPress = () => {
+        if (logEmail && logPassword) {
+            const user = userList.find(u => u.email === logEmail);
+
+            if (user) {
+                console.log(user.email + " - " + user.password);
+
+                if (logPassword === user.password) {
+                    Alert.alert("Success", "Login successful!");
+                    navigation.navigate('Profile', { userData: user });
+                } else {
+                    Alert.alert("Error", "Invalid email or password!");
+                }
+            } else {
+                Alert.alert("Error", "User does not exist!");
             }
-
-            if (!onRegister({ 
-                userName: userName,
-                email: regEmail,
-                password: regPassword
-            })) return;
-
-            Alert.alert("Success", "Account created successfully!");
-            navigation.navigate('Login');
         } else {
             Alert.alert("Error", "Please fill in all fields!");
         }
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.menu}>  
-                <Text style={styles.header}>REGISTER</Text>
-        
-                <View style={styles.block}>
-                    <Text style={styles.label}>Name</Text>
-                    <TextInput 
-                        style={styles.textInput} 
-                        placeholder='test'
-                        value={userName}
-                        onChangeText={(text) => setUserName(text)}
-                    />
-                </View>
-                
+                <Text style={styles.header}>LOGIN</Text>
+
                 <View style={styles.block}>
                     <Text style={styles.label}>Email</Text>
                     <TextInput 
                         style={styles.textInput} 
                         placeholder='test@gmail.com' 
                         keyboardType='email-address'
-                        value={regEmail}
-                        onChangeText={(text) => setRegEmail(text)}
+                        value={logEmail}
+                        onChangeText={(text) => setLogEmail(text)}
                     />
                 </View>
-        
+                
                 <View style={styles.block}>
                     <Text style={styles.label}>Password</Text>
                     <TextInput 
                         style={styles.textInput} 
-                        placeholder='* * * *' 
+                        placeholder='****' 
                         secureTextEntry={true}
-                        value={regPassword}
-                        onChangeText={(text) => setRegPassword(text)}
+                        value={logPassword}
+                        onChangeText={(text) => setLogPassword(text)}
                     />
-                </View>
-        
-                <View style={styles.block}>
-                    <Text style={styles.label}>Confirm Password</Text>
-                    <TextInput 
-                        style={styles.textInput} 
-                        placeholder='* * * *' 
-                        secureTextEntry={true}
-                        value={confirmPassword}
-                        onChangeText={(text) => setConfirmPassword(text)}
-                    />
+                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                        <Text style={styles.forgotPass}>
+                            Forgot Password?
+                        </Text>
+                    </TouchableOpacity>
                 </View>
                 
-                <TouchableOpacity style={styles.button} onPress={handleCreatePress}>
-                    <Text style={styles.buttonText}>Create</Text>
+                <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
+                    <Text style={styles.buttonText}>Sign in</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -148,7 +132,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         alignItems: 'center',
 
-        shadowColor: "#f6803b",
+        shadowColor: '#f6803b',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 4,

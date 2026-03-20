@@ -90,15 +90,19 @@ export default function Profile({ navigation, route, onUpdate }) {
                 
                     <TouchableOpacity 
                         style={styles.button} 
-                        onPress={updateData}
-                    >
+                        onPress={updateData}>
                         <Text style={styles.buttonText}>Save</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity 
                         style={styles.button} 
-                        onPress={() => navigation.navigate('Login')}
-                    >
+                        onPress={() => navigation.navigate('HomePage', {userData} )}>
+                        <Text style={styles.buttonText}>Home</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                        style={styles.button} 
+                        onPress={() => navigation.navigate('Login')}>
                         <Text style={styles.buttonText}>Logout</Text>
                     </TouchableOpacity>
                 </View>

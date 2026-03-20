@@ -1,68 +1,111 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { 
-  AppRegistry,
   StyleSheet, 
   Text, 
   View, 
   TextInput, 
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  Image
 } from 'react-native';
 
-export default class Profile extends Component {
-    render() {
-        const { navigation } = this.props;
+export default function Profile({ navigation, route, onUpdate }) {
+    const userData = route.params.userData || {};
 
-        return (
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <View style={styles.container}>
-                    <View style={styles.menu}>
-                        <Text style={styles.header}>PROFILE</Text>
-
-                        <View style={styles.block}>
-                            <Text style={styles.label}>Username</Text>
-                            <TextInput style={styles.textInput} placeholder='username'/>
-                        </View>
-
-                        <View style={styles.block}>
-                            <Text style={styles.label}>Email</Text>
-                            <TextInput style={styles.textInput} placeholder='name@gmail.com' keyboardType='email-address'/>
-                        </View>
-
-                        <View style={styles.block}>
-                            <Text style={styles.label}>Phone</Text>
-                            <TextInput style={styles.textInput} placeholder='+1234567890' keyboardType='phone-pad'/>
-                        </View>
-
-                        <View style={styles.block}>
-                            <Text style={styles.label}>Date of Birth</Text>
-                            <TextInput style={styles.textInput} placeholder='01/01/2026'/>
-                        </View>
-
-                        <View style={styles.block}>
-                            <Text style={styles.label}>Address</Text>
-                            <TextInput style={styles.textInput} placeholder='123 Main St'/>
-                        </View>
-
-                        <View style={styles.block}>
-                            <Text style={styles.label}>Description</Text>
-                            <TextInput 
-                                style={styles.textInput} 
-                                placeholder='about yourself'
-                                multiline={true}
-                                numberOfLines={2}
-                                />
-                        </View>
-                    
-                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
-                            <Text style={styles.buttonText}>Logout</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </ScrollView>
-        )
+    const [address, setAddress] = useState(userData.address || '');
+    const [avatarUrl, setAvatarUrl] = useState(userData.avatarUrl || '');
+    const [description, setDescription] = useState(userData.description || '');
+    
+    const updateData = () => {
+        onUpdate({
+            userName: userData.userName,
+            email: userData.email,
+            password: userData.password,
+            address,
+            avatarUrl,
+            description
+        });
     }
-}
+
+    return (
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View style={styles.container}>
+                <View style={styles.menu}>
+                    <View style={styles.horizontalBox}>
+                        <Text style={styles.header}>{userData?.userName}!</Text>
+                        { avatarUrl ? (
+                            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                        ) : (
+                            <Image source={{ uri: 'https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-circle-icon.png' }} style={styles.avatar} />
+                        )}
+                    </View>
+
+                    <View style={styles.block}>
+                        <Text style={styles.label}>Username</Text>
+                        <TextInput 
+                            style={[styles.textInput, styles.none_editable]} 
+                            placeholder='username'
+                            value={userData?.userName}
+                            editable={false}/>
+                    </View>
+
+                    <View style={styles.block}>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput 
+                            style={[styles.textInput, styles.none_editable]} 
+                            placeholder='name@gmail.com' 
+                            keyboardType='email-address'
+                            value={userData.email}
+                            editable={false}
+                        />
+                    </View>
+
+                    <View style={styles.block}>
+                        <Text style={styles.label}>Address</Text>
+                        <TextInput 
+                            style={styles.textInput} 
+                            placeholder='123 Main St'
+                            value={address}
+                            onChangeText={(text) => setAddress(text)}/>
+                    </View>
+
+                    <View style={styles.block}>
+                        <Text style={styles.label}>Avatar URL</Text>
+                        <TextInput style={styles.textInput} placeholder='http://xxxx.xxx.xxxx'
+                        value={avatarUrl}
+                        onChangeText={(text) => setAvatarUrl(text)}/>
+                    </View>
+
+                    <View style={styles.block}>
+                        <Text style={styles.label}>Description</Text>
+                        <TextInput 
+                            style={styles.textInput} 
+                            placeholder='about yourself'
+                            multiline={true}
+                            numberOfLines={2}
+                            value={description}
+                            onChangeText={(text) => setDescription(text)}
+                        />
+                    </View>
+                
+                    <TouchableOpacity 
+                        style={styles.button} 
+                        onPress={updateData}
+                    >
+                        <Text style={styles.buttonText}>Save</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                        style={styles.button} 
+                        onPress={() => navigation.navigate('Login')}
+                    >
+                        <Text style={styles.buttonText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </ScrollView>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -70,6 +113,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f0f2f5', 
+    },
+
+    horizontalBox: {
+        flexDirection: 'row',
+        flex: 1,
+        justifyContent: 'space-around',
     },
 
     menu: {
@@ -86,11 +135,18 @@ const styles = StyleSheet.create({
     },
 
     header: {
-        fontSize: 32,
+        fontSize: 40,
         fontWeight: '800', 
         color: '#1a1a1a',
-        marginBottom: 40,
+        marginBottom: 10,
         textAlign: 'center',
+    },
+
+    avatar: {
+        width: 75,
+        height: 75,
+        borderRadius: 10,
+        resizeMode: 'cover',
     },
 
     block: {
@@ -134,5 +190,9 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 18,
         fontWeight: 'bold',
-    }
+    },
+
+    none_editable: {
+        backgroundColor: '#e0e0e0'
+    },  
 });

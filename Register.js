@@ -1,91 +1,94 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react'; 
 import { 
-  AppRegistry,
   StyleSheet, 
   Text, 
   View, 
   TextInput, 
   TouchableOpacity,
-  ScrollView
+  Alert 
 } from 'react-native';
 
-export default class Register extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            userName: '',
-            regEmail: '',
-            regPassword: '',
-            confirmPassword: ''
-        };
-        this.handleCreatePress = this.handleCreatePress.bind(this);
-    }
+export default function Register({ navigation, onRegister }) {
+    const [userName, setUserName] = useState('');
+    const [regEmail, setRegEmail] = useState('');
+    const [regPassword, setRegPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
-    handleCreatePress() {
-        const { userName, regEmail, regPassword, confirmPassword } = this.state;
-
+    const handleCreatePress = () => {
         if (regEmail && regPassword && confirmPassword) {
             if (regPassword !== confirmPassword) {
-                alert("Passwords do not match!");
+                Alert.alert("Error", "Passwords do not match!");
                 return;
             }
 
-            this.props.onRegister({ 
+            if (!onRegister({ 
                 userName: userName,
                 email: regEmail,
                 password: regPassword
-            });
+            })) return;
 
-            alert("Account created successfully!");
-            this.props.navigation.navigate('Login');
-        
+            Alert.alert("Success", "Account created successfully!");
+            navigation.navigate('Login');
         } else {
-            alert("Please fill in all fields!");
+            Alert.alert("Error", "Please fill in all fields!");
         }
     };
 
-    render() {
-        return (
-            <View style={styles.container}>
-                <View style={styles.menu}>  
-                    <Text style={styles.header}>REGISTER</Text>
-            
-                    <View style={styles.block}>
-                        <Text style={styles.label}>Name</Text>
-                        <TextInput style={styles.textInput} placeholder='test'
-                        value={this.state.userName}
-                        onChangeText={(userName) => this.setState({ userName })}/>
-                    </View>
-                    
-                    <View style={styles.block}>
-                        <Text style={styles.label}>Email</Text>
-                        <TextInput style={styles.textInput} placeholder='test@gmail.com' keyboardType='email-address'
-                        value={this.state.regEmail}
-                        onChangeText={(regEmail) => this.setState({ regEmail })}/>
-                    </View>
-            
-                    <View style={styles.block}>
-                        <Text style={styles.label}>Password</Text>
-                        <TextInput style={styles.textInput} placeholder='* * * *' secureTextEntry={true}
-                        value={this.state.regPassword}
-                        onChangeText={(regPassword) => this.setState({ regPassword })}/>
-                    </View>
-            
-                    <View style={styles.block}>
-                        <Text style={styles.label}>Confirm Password</Text>
-                        <TextInput style={styles.textInput} placeholder='* * * *' secureTextEntry={true}
-                        value={this.state.confirmPassword}
-                        onChangeText={(confirmPassword) => this.setState({ confirmPassword })}/>
-                    </View>
-                    
-                    <TouchableOpacity style={styles.button} onPress={this.handleCreatePress}>
-                        <Text style={styles.buttonText}>Create</Text>
-                    </TouchableOpacity>
+    return (
+        <View style={styles.container}>
+            <View style={styles.menu}>  
+                <Text style={styles.header}>REGISTER</Text>
+        
+                <View style={styles.block}>
+                    <Text style={styles.label}>Name</Text>
+                    <TextInput 
+                        style={styles.textInput} 
+                        placeholder='test'
+                        value={userName}
+                        onChangeText={(text) => setUserName(text)}
+                    />
                 </View>
+                
+                <View style={styles.block}>
+                    <Text style={styles.label}>Email</Text>
+                    <TextInput 
+                        style={styles.textInput} 
+                        placeholder='test@gmail.com' 
+                        keyboardType='email-address'
+                        value={regEmail}
+                        onChangeText={(text) => setRegEmail(text)}
+                    />
+                </View>
+        
+                <View style={styles.block}>
+                    <Text style={styles.label}>Password</Text>
+                    <TextInput 
+                        style={styles.textInput} 
+                        placeholder='* * * *' 
+                        secureTextEntry={true}
+                        value={regPassword}
+                        onChangeText={(text) => setRegPassword(text)}
+                    />
+                </View>
+        
+                <View style={styles.block}>
+                    <Text style={styles.label}>Confirm Password</Text>
+                    <TextInput 
+                        style={styles.textInput} 
+                        placeholder='* * * *' 
+                        secureTextEntry={true}
+                        value={confirmPassword}
+                        onChangeText={(text) => setConfirmPassword(text)}
+                    />
+                </View>
+                
+                <TouchableOpacity style={styles.button} onPress={handleCreatePress}>
+                    <Text style={styles.buttonText}>Create</Text>
+                </TouchableOpacity>
             </View>
-        )
-    }
-}
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {

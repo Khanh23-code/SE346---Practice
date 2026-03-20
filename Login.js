@@ -1,75 +1,77 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { 
-  AppRegistry,
   StyleSheet, 
   Text, 
   View, 
   TextInput, 
   TouchableOpacity,
-  ScrollView
+  Alert 
 } from 'react-native';
 
-export default class Login extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            logEmail: '',
-            logPassword: ''
-        };
-        this.handleLoginPress = this.handleLoginPress.bind(this);
-    }
+export default function Login({ navigation, userList }) {
+    const [logEmail, setLogEmail] = useState('');
+    const [logPassword, setLogPassword] = useState('');
 
-    handleLoginPress() {
-        const { logEmail, logPassword } = this.state;
-
+    const handleLoginPress = () => {
         if (logEmail && logPassword) {
-            let user = this.props.userList.find(user => user.email === logEmail);
-            console.log(user.email + " - " + user.password);
+            const user = userList.find(u => u.email === logEmail);
 
-            if (user && logPassword === user.password) {
-                alert("Login successful!");
-                this.props.navigation.navigate('Profile');
+            if (user) {
+                console.log(user.email + " - " + user.password);
+
+                if (logPassword === user.password) {
+                    Alert.alert("Success", "Login successful!");
+                    navigation.navigate('Profile', { userData: user });
+                } else {
+                    Alert.alert("Error", "Invalid email or password!");
+                }
             } else {
-                alert("Invalid email or password!");
+                Alert.alert("Error", "User does not exist!");
             }
+        } else {
+            Alert.alert("Error", "Please fill in all fields!");
         }
-    }
+    };
 
-    render() {
-        const { navigation } = this.props;
+    return (
+        <View style={styles.container}>
+            <View style={styles.menu}>  
+                <Text style={styles.header}>LOGIN</Text>
 
-        return (
-            <View style={styles.container}>
-                <View style={styles.menu}>  
-                    <Text style={styles.header}>LOGIN</Text>
-
-                    <View style={styles.block}>
-                        <Text style={styles.label}>Email</Text>
-                        <TextInput style={styles.textInput} placeholder='test@gmail.com' keyboardType='email-address'
-                            value={this.state.logEmail}
-                            onChangeText={(logEmail) => this.setState({ logEmail })}/>
-                    </View>
-                    
-                    <View style={styles.block}>
-                        <Text style={styles.label}>Password</Text>
-                        <TextInput style={styles.textInput} placeholder='****' secureTextEntry={true}
-                            value={this.state.logPassword}
-                            onChangeText={(logPassword) => this.setState({ logPassword })}/>
-                        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                            <Text style={{color: '#000000', marginTop: 8, textAlign: 'right'}}>
+                <View style={styles.block}>
+                    <Text style={styles.label}>Email</Text>
+                    <TextInput 
+                        style={styles.textInput} 
+                        placeholder='test@gmail.com' 
+                        keyboardType='email-address'
+                        value={logEmail}
+                        onChangeText={(text) => setLogEmail(text)}
+                    />
+                </View>
+                
+                <View style={styles.block}>
+                    <Text style={styles.label}>Password</Text>
+                    <TextInput 
+                        style={styles.textInput} 
+                        placeholder='****' 
+                        secureTextEntry={true}
+                        value={logPassword}
+                        onChangeText={(text) => setLogPassword(text)}
+                    />
+                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                        <Text style={styles.forgotPass}>
                             Forgot Password?
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    
-                    <TouchableOpacity style={styles.button} onPress={this.handleLoginPress}>
-                        <Text style={styles.buttonText}>Sign in</Text>
+                        </Text>
                     </TouchableOpacity>
                 </View>
+                
+                <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
+                    <Text style={styles.buttonText}>Sign in</Text>
+                </TouchableOpacity>
             </View>
-        )
-    }
-}
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {

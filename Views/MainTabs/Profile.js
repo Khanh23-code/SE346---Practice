@@ -9,18 +9,17 @@ import {
   Image
 } from 'react-native';
 
-export default function Profile({ navigation, route, onUpdate }) {
-    const userData = route.params?.userData || {};
-
-    const [address, setAddress] = useState(userData.address || '');
-    const [avatarUrl, setAvatarUrl] = useState(userData.avatarUrl || '');
-    const [description, setDescription] = useState(userData.description || '');
+export default function Profile({ navigation, route, onUpdate, userData }) {
+    const [info, setInfo] = useState(userData || {});
+    const [address, setAddress] = useState(userData?.address || '');
+    const [avatarUrl, setAvatarUrl] = useState(userData?.avatarUrl || '');
+    const [description, setDescription] = useState(userData?.description || '');
     
     const updateData = () => {
         onUpdate({
-            userName: userData?.userName || '',
-            email: userData?.email || '',
-            password: userData?.password || '',
+            userName: info.userName || '',
+            email: info.email || '',
+            password: info.password || '',
             address: address,
             avatarUrl: avatarUrl,
             description: description
@@ -28,19 +27,20 @@ export default function Profile({ navigation, route, onUpdate }) {
     }
 
     useEffect(() => {
-        if (route.params?.userData) {
-            setAddress(route.params.userData.address || '');
-            setAvatarUrl(route.params.userData.avatarUrl || '');
-            setDescription(route.params.userData.description || '');
+        if (userData && userData.userName) {
+            setInfo(userData);
+            setAddress(userData.address || '');
+            setAvatarUrl(userData.avatarUrl || '');
+            setDescription(userData.description || '');
         }
-    }, [route.params?.userData]);
+    }, [userData]);
 
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
                 <View style={styles.menu}>
                     <View style={styles.horizontalBox}>
-                        <Text style={styles.header}>{userData?.userName}!</Text>
+                        <Text style={styles.header}>{info.userName}!</Text>
                         { avatarUrl ? (
                             <Image source={{ uri: avatarUrl }} style={styles.avatar} />
                         ) : (
@@ -53,7 +53,7 @@ export default function Profile({ navigation, route, onUpdate }) {
                         <TextInput 
                             style={[styles.textInput, styles.none_editable]} 
                             placeholder='username'
-                            value={userData?.userName}
+                            value={info.userName}
                             editable={false}/>
                     </View>
 
@@ -63,7 +63,7 @@ export default function Profile({ navigation, route, onUpdate }) {
                             style={[styles.textInput, styles.none_editable]} 
                             placeholder='name@gmail.com' 
                             keyboardType='email-address'
-                            value={userData.email}
+                            value={info.email}
                             editable={false}
                         />
                     </View>

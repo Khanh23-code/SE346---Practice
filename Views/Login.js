@@ -18,15 +18,9 @@ export default function Login({ navigation, userList }) {
             const user = userList.find(u => u.email === logEmail);
 
             if (user) {
-                console.log(user.email + " - " + user.password);
-
                 if (logPassword === user.password) {
                     Alert.alert("Success", "Login successful!");
-                    navigation.navigate('MainTabs', {
-                        screen: 'HomePage', 
-                        params: { userData: user }, 
-                    }
-                );
+                    navigation.navigate('MainTabs', { userData: user });
                 } else {
                     Alert.alert("Error", "Invalid email or password!");
                 }

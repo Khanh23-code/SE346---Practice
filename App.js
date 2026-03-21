@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Register from './Views/Register';
 import Login from './Views/Login';
-import MainTabs from './MainTabs.js';
+import MainTabs from './Views/MainTabs';
 
 const Stack = createNativeStackNavigator();
 

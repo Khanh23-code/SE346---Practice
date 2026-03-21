@@ -19,16 +19,16 @@ export default function Login({ navigation, userList }) {
 
             if (user) {
                 if (logPassword === user.password) {
-                    Alert.alert("Success", "Login successful!");
+                    Alert("Success", "Login successful!");
                     navigation.navigate('MainTabs', { userData: user });
                 } else {
-                    Alert.alert("Error", "Invalid email or password!");
+                    Alert("Error", "Invalid email or password!");
                 }
             } else {
-                Alert.alert("Error", "User does not exist!");
+                Alert("Error", "User does not exist!");
             }
         } else {
-            Alert.alert("Error", "Please fill in all fields!");
+            Alert("Error", "Please fill in all fields!");
         }
     };
 
@@ -57,11 +57,18 @@ export default function Login({ navigation, userList }) {
                         value={logPassword}
                         onChangeText={(text) => setLogPassword(text)}
                     />
-                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                        <Text style={styles.forgotPass}>
-                            Forgot Password?
-                        </Text>
-                    </TouchableOpacity>
+                    <View style={styles.linkSection}>
+                        <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
+                            <Text style={styles.linkText}>
+                                Register
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.forgotButton} onPress={() => navigation.navigate('Register')}>
+                            <Text style={styles.linkText}>
+                                Forgot Password?
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 
                 <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
@@ -137,16 +144,29 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
 
+    linkSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+
     buttonText: {
         color: '#ffffff',
         fontSize: 18,
         fontWeight: 'bold',
     },
 
-    forgotPass: {
+    linkText: {
         color: '#f6803b',
-        textAlign: 'right',
-        marginTop: 8,
         fontWeight: '600',
+    },
+
+    registerButton: {
+        paddingVertical: 5,
+        marginTop: 5,
+    },
+
+    forgotButton: {
+        paddingVertical: 5, 
+        marginTop: 5,
     },
 });

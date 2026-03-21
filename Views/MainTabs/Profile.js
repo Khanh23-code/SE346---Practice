@@ -39,7 +39,7 @@ export default function Profile({ navigation, route, onUpdate, userData }) {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
                 <View style={styles.menu}>
-                    <View style={styles.horizontalBox}>
+                    <View style={styles.headerSection}>
                         <Text style={styles.header}>{info.userName}!</Text>
                         { avatarUrl ? (
                             <Image source={{ uri: avatarUrl }} style={styles.avatar} />
@@ -112,9 +112,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f0f2f5', 
+        marginVertical: 10,
     },
 
-    horizontalBox: {
+    headerSection: {
         flexDirection: 'row',
         flex: 1,
         justifyContent: 'space-around',

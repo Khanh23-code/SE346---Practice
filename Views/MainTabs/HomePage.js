@@ -51,7 +51,7 @@ export default function HomePage({ navigation, route, userList, userData }) {
 
     const handlePost = () => {
         if (inputText.trim().length === 0) {
-            Alert.alert("Thông báo", "Vui lòng nhập nội dung!");
+            Alert("Thông báo", "Vui lòng nhập nội dung!");
             return;
         }
 
@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f0f2f5', 
     },
+
     inputSection: {
         flexDirection: 'row',
         padding: 15,
@@ -107,6 +108,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10, 
     },
+
     input: {
         flex: 1,
         backgroundColor: '#f9fafb',
@@ -118,16 +120,19 @@ const styles = StyleSheet.create({
         marginRight: 10,
         maxHeight: 100,
     },
+
     postButton: {
         backgroundColor: '#f6803b',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
     },
+
     postButtonText: {
         color: '#ffffff',
         fontWeight: 'bold',
     },
+
     postContainer: {
         width: '92%', 
         alignSelf: 'center', 
@@ -141,6 +146,7 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+
     postHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -150,23 +156,28 @@ const styles = StyleSheet.create({
         borderBottomColor: '#f0f0f0',
         paddingBottom: 8,
     },
+
     userName: {
         fontSize: 16,
         fontWeight: '700',
         color: '#f6803b',
     },
+
     postDate: {
         fontSize: 12,
         color: '#9ca3af',
     },
+
     postContent: {
         marginTop: 5,
     },
+    
     description: {
         fontSize: 15,
         color: '#4b5563',
         lineHeight: 22,
     },
+
     seeMore: {
         color: '#f6803b',
         fontWeight: '600',

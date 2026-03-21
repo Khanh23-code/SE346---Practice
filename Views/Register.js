@@ -18,7 +18,7 @@ export default function Register({ navigation, onRegister }) {
     const handleCreatePress = () => {
         if (regEmail && regPassword && confirmPassword) {
             if (regPassword !== confirmPassword) {
-                Alert.alert("Error", "Passwords do not match!");
+                Alert("Error", "Passwords do not match!");
                 return;
             }
 
@@ -28,10 +28,10 @@ export default function Register({ navigation, onRegister }) {
                 password: regPassword
             })) return;
 
-            Alert.alert("Success", "Account created successfully!");
+            Alert("Success", "Account created successfully!");
             navigation.navigate('Login');
         } else {
-            Alert.alert("Error", "Please fill in all fields!");
+            Alert("Error", "Please fill in all fields!");
         }
     };
 
@@ -82,7 +82,11 @@ export default function Register({ navigation, onRegister }) {
                         onChangeText={(text) => setConfirmPassword(text)}
                     />
                 </View>
-                
+
+                <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('Login')}>
+                    <Text style={styles.loginButtonText}>Login</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity style={styles.button} onPress={handleCreatePress}>
                     <Text style={styles.buttonText}>Create</Text>
                 </TouchableOpacity>
@@ -160,5 +164,28 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 18,
         fontWeight: 'bold',
-    }
+    },
+
+    loginButton: {
+        width: '100%',
+        backgroundColor: '#ffffffff', 
+        borderWidth: 4,
+        borderColor: "#f6803b",
+        borderRadius: 12,
+        padding: 15,
+        marginTop: 10,
+        alignItems: 'center',
+
+        shadowColor: "#f6803b",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+
+    loginButtonText: {
+        color: '#f6803b',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
 });

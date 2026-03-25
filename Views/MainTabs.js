@@ -10,7 +10,7 @@ import Settings from './MainTabs/Settings';
 
 const Tab = createBottomTabNavigator();
 
-export default function MainTabs({ route, userList, onUpdate }) {
+export default function MainTabs({ route, userList, userPostList , onUpdate, onAddPost }) {
   const loginUser = route.params?.userData || {};
 
   return (
@@ -30,7 +30,7 @@ export default function MainTabs({ route, userList, onUpdate }) {
           ),
         }}
       >
-        {(props) => <HomePage {...props} userList={userList} userData={loginUser} />}
+        {(props) => <HomePage {...props} userData={loginUser} userPostList={userPostList} onAddPost={onAddPost} />}
       </Tab.Screen>
       
       <Tab.Screen 

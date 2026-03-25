@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState, useCallback } from 'react'; 
 import { 
     StyleSheet, 
     Text, 
@@ -11,6 +11,13 @@ import {
 
 const PostItem = ({ item }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [showReadMore, setShowReadMore] = useState(false);
+
+    const handleTextLayout = useCallback((e) => {
+        if (e.nativeEvent.lines.length >= 3 && !showReadMore) {
+            setShowReadMore(true);
+        }
+    }, [showReadMore]);
 
     return (
         <View style={styles.postContainer}>
@@ -20,15 +27,17 @@ const PostItem = ({ item }) => {
             </View>
 
             <View style={styles.postContent}>
-                <Text style={styles.description} numberOfLines={isExpanded ? undefined : 3}>
-                    {item.description || "No description provided yet."}
+                <Text 
+                    style={styles.description} 
+                    numberOfLines={isExpanded ? undefined : 3}
+                    onTextLayout={handleTextLayout}>
+                    {item.description}
                 </Text>
                 
-                {/* Nút Xem thêm */}
-                {item.description && item.description.length > 100 && (
+                {showReadMore && (
                     <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)}>
                         <Text style={styles.seeMore}>
-                            {isExpanded ? "Show less" : "Read more..."}
+                            {isExpanded ? "Show less" : "Read more"}
                         </Text>
                     </TouchableOpacity>
                 )}
@@ -37,21 +46,14 @@ const PostItem = ({ item }) => {
     );
 };
 
-export default function HomePage({ navigation, route, userList, userData }) {
+export default function HomePage({ navigation, route, userPostList, userData, onAddPost }) {
     const [inputText, setInputText] = useState('');
 
-    const [posts, setPosts] = useState([
-        { 
-            id: 0, 
-            userName: userData?.userName || "Admin",
-            date: new Date().toLocaleDateString(),
-            description: "Chào mừng bạn đến với ứng dụng! Đây là bài viết mẫu đầu tiên."
-        },
-    ]);
-
+    const allPosts = userPostList ? userPostList.flatMap(user => user.posts) : [];
+    
     const handlePost = () => {
         if (inputText.trim().length === 0) {
-            Alert.alert("Thông báo", "Vui lòng nhập nội dung!");
+            Alert.alert("Alert", "The description cannot be empty!");
             return;
         }
 
@@ -62,7 +64,7 @@ export default function HomePage({ navigation, route, userList, userData }) {
             description: inputText
         };
 
-        setPosts([newPost, ...posts]);
+        onAddPost(userData, newPost);
         
         setInputText('');
     };
@@ -73,7 +75,7 @@ export default function HomePage({ navigation, route, userList, userData }) {
             <View style={styles.inputSection}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Bạn đang nghĩ gì?"
+                    placeholder="What are you today?"
                     value={inputText}
                     onChangeText={setInputText}
                     multiline
@@ -84,10 +86,10 @@ export default function HomePage({ navigation, route, userList, userData }) {
             </View>
 
             <FlatList
-                data={posts}
+                data={allPosts}
                 renderItem={({ item }) => <PostItem item={item} />}
                 keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} // Căn chỉnh lại padding
+                contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} 
             />
         </View>
     );
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
     },
 
     seeMore: {
-        color: '#f6803b',
+        color: '#c5c5c5',
         fontWeight: '600',
         marginTop: 5,
     }

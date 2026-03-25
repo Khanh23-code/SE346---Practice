@@ -51,7 +51,7 @@ export default function HomePage({ navigation, route, userList, userData }) {
 
     const handlePost = () => {
         if (inputText.trim().length === 0) {
-            Alert("Thông báo", "Vui lòng nhập nội dung!");
+            Alert.alert("Thông báo", "Vui lòng nhập nội dung!");
             return;
         }
 

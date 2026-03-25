@@ -25,13 +25,13 @@ export default function App() {
         user.email === newUserData.email ? newUserData : user
       )
     );
-    Alert("Save data completely!");
+    Alert.alert("Save data completely!");
   }
 
   const handleRegister = (newUser) => {
     const isExist = checkEmailExist(newUser);
     if (isExist) {
-      Alert("This email had been used!");
+      Alert.alert("This email had been used!");
       return false;
     }
 

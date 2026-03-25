@@ -16,9 +16,9 @@ export default function Register({ navigation, onRegister }) {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const handleCreatePress = () => {
-        if (regEmail && regPassword && confirmPassword) {
+        if (userName && regEmail && regPassword && confirmPassword) {
             if (regPassword !== confirmPassword) {
-                Alert("Error", "Passwords do not match!");
+                Alert.alert("Error", "Passwords do not match!");
                 return;
             }
 
@@ -28,10 +28,10 @@ export default function Register({ navigation, onRegister }) {
                 password: regPassword
             })) return;
 
-            Alert("Success", "Account created successfully!");
+            Alert.alert("Success", "Account created successfully!");
             navigation.navigate('Login');
         } else {
-            Alert("Error", "Please fill in all fields!");
+            Alert.alert("Error", "Please fill in all fields!");
         }
     };
 

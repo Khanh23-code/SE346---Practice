@@ -16,19 +16,23 @@ export default function Login({ navigation, userList }) {
     const handleLoginPress = () => {
         if (logEmail && logPassword) {
             const user = userList.find(u => u.email === logEmail);
+            if (user === undefined) {
+                Alert.alert("Error", "Email and password do not match!");
+                return;
+            }
 
             if (user) {
                 if (logPassword === user.password) {
-                    Alert("Success", "Login successful!");
+                    Alert.alert("Success", "Login successful!");
                     navigation.navigate('MainTabs', { userData: user });
                 } else {
-                    Alert("Error", "Invalid email or password!");
+                    Alert.alert("Error", "Invalid email or password!");
                 }
             } else {
-                Alert("Error", "User does not exist!");
+                Alert.alert("Error", "User does not exist!");
             }
         } else {
-            Alert("Error", "Please fill in all fields!");
+            Alert.alert("Error", "Please fill in all fields!");
         }
     };
 

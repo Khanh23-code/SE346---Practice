@@ -6,24 +6,25 @@ import {
   TextInput, 
   TouchableOpacity,
   ScrollView,
-  Image
+  Image,
+  Alert
 } from 'react-native';
+import { updateUser } from '../../database';
 
-export default function Profile({ navigation, route, onUpdate, userData }) {
+export default function Profile({ navigation, route, userData }) {
     const [info, setInfo] = useState(userData || {});
     const [address, setAddress] = useState(userData?.address || '');
     const [avatarUrl, setAvatarUrl] = useState(userData?.avatarUrl || '');
     const [description, setDescription] = useState(userData?.description || '');
     
     const updateData = () => {
-        onUpdate({
-            userName: info.userName || '',
-            email: info.email || '',
-            password: info.password || '',
-            address: address,
-            avatarUrl: avatarUrl,
-            description: description
-        });
+        const isSuccess = updateUser(info.email, address, avatarUrl, description);
+        
+        if (isSuccess) {
+            Alert.alert("Success", "Update data successfully!");
+        } else {
+            Alert.alert("Error", "Cannot update your information.");
+        }
     }
 
     useEffect(() => {

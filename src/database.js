@@ -1,6 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 
-const db = SQLite.openDatabaseSync('AppDB.db');
+const db = SQLite.openDatabaseSync('DemoAppDB.db');
 
 export const initDB = () => {
   try {
@@ -31,14 +31,13 @@ export const initDB = () => {
 
 export const addUser = (userName, email, password) => {
   try {
-    const statement = db.prepareSync(
-      'INSERT INTO Users (userName, email, password, address, avatarUrl, description) VALUES (?, ?, ?, ?, ?, ?)'
+    db.runSync(
+      'INSERT INTO Users (userName, email, password, address, avatarUrl, description) VALUES (?, ?, ?, ?, ?, ?)',
+      [userName, email, password, '', '', '']
     );
-    statement.executeSync([userName, email, password, '', '', '']);
     return true; 
   } 
-  catch (error) 
-  {
+  catch (error) {
     console.log("Error while adding an user:", error);
     return false; 
   }
@@ -46,24 +45,37 @@ export const addUser = (userName, email, password) => {
 
 export const getUserByEmail = (email) => {
   try {
-    const statement = db.prepareSync('SELECT * FROM Users WHERE email = ?');
-    const result = statement.executeSync([email]);
-    return result.getFirstSync(); 
-  } catch (error) {
+    return db.getFirstSync('SELECT * FROM Users WHERE email = ?', [email]);
+  } 
+  catch (error) {
     console.log("Error while searching an user:", error);
     return null;
   }
 };
 
+export const updateUser = (email, address, avatarUrl, description) => {
+  try {
+    db.runSync(
+      'UPDATE Users SET address = ?, avatarUrl = ?, description = ? WHERE email = ?',
+      [address, avatarUrl, description, email]
+    );
+    return true; 
+  } catch (error) {
+    console.log("Error while updating data:", error);
+    return false;
+  }
+};
+
 export const addPost = (userEmail, date, description) => {
   try {
-    const statement = db.prepareSync('INSERT INTO Posts (userEmail, date, description) VALUES (?, ?, ?)');
-    statement.executeSync([userEmail, date, description]);
+    db.runSync(
+      'INSERT INTO Posts (userEmail, date, description) VALUES (?, ?, ?)',
+      [userEmail, date, description]
+    );
   } catch (error) {
     console.log("Error while adding a post:", error);
   }
 };
-
 export const getAllPosts = () => {
   try {
     return db.getAllSync(`
@@ -73,7 +85,7 @@ export const getAllPosts = () => {
       ORDER BY Posts.date DESC
     `);
   } catch (error) {
-    console.log("Lỗi lấy danh sách posts:", error);
+    console.log("Error while getting posts:", error);
     return [];
   }
 };

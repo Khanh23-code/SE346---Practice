@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'; 
+import React, { useState, useCallback, useEffect } from 'react'; 
 import { 
     StyleSheet, 
     Text, 
@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     Alert
 } from 'react-native';
+import { addPost, getAllPosts } from '../../database';
 
 const PostItem = ({ item }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -48,26 +49,34 @@ const PostItem = ({ item }) => {
 
 export default function HomePage({ navigation, route, userPostList, userData, onAddPost }) {
     const [inputText, setInputText] = useState('');
-
-    const allPosts = userPostList ? userPostList.flatMap(user => user.posts) : [];
-    const sortedPosts = [...allPosts].sort((postA, postB) => postB.date - postA.date);
+    const [posts, setPosts] = useState([]);
     
+    const loadPosts = () => {
+        const fetchedPosts = getAllPosts();
+        setPosts(fetchedPosts);
+    };
+
+    useEffect(() => {
+        loadPosts();
+    }, []);
+
     const handlePost = () => {
         if (inputText.trim().length === 0) {
             Alert.alert("Alert", "The description cannot be empty!");
             return;
         }
 
-        const newPost = {
-            id: Math.random().toString(36).substring(7),
-            userName: userData?.userName || "User",
-            date: new Date().getTime(),
-            description: inputText
-        };
+        const newDate = new Date().getTime();
 
-        onAddPost(userData, newPost);
-        
-        setInputText('');
+        if (userData && userData.email) {
+            addPost(userData.email, newDate, inputText);
+            
+            setInputText('');
+            loadPosts();
+        } 
+        else {
+            Alert.alert("Error", "User session expired. Please login again.");
+        }
     };
 
     return (
@@ -87,9 +96,9 @@ export default function HomePage({ navigation, route, userPostList, userData, on
             </View>
 
             <FlatList
-                data={sortedPosts}
+                data={posts}
                 renderItem={({ item }) => <PostItem item={item} />}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
                 contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} 
             />
         </View>

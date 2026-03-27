@@ -8,15 +8,17 @@ import {
   Alert 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getUserByEmail } from '../database';
 
-export default function Login({ navigation, userList }) {
+export default function Login({ navigation }) {
     const [logEmail, setLogEmail] = useState('');
     const [logPassword, setLogPassword] = useState('');
 
     const handleLoginPress = () => {
         if (logEmail && logPassword) {
-            const user = userList.find(u => u.email === logEmail);
-            if (user === undefined) {
+            const user = getUserByEmail(logEmail);
+
+            if (!user) {
                 Alert.alert("Error", "Email and password do not match!");
                 return;
             }

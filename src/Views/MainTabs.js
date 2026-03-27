@@ -10,7 +10,7 @@ import Settings from './MainTabs/Settings';
 
 const Tab = createBottomTabNavigator();
 
-export default function MainTabs({ route, userList, userPostList , onUpdate, onAddPost, onClearData }) {
+export default function MainTabs({ route }) {
   const loginUser = route.params?.userData || {};
 
   return (
@@ -30,7 +30,7 @@ export default function MainTabs({ route, userList, userPostList , onUpdate, onA
           ),
         }}
       >
-        {(props) => <HomePage {...props} userData={loginUser} userPostList={userPostList} onAddPost={onAddPost} />}
+        {(props) => <HomePage {...props} userData={loginUser} />}
       </Tab.Screen>
       
       <Tab.Screen 
@@ -42,7 +42,7 @@ export default function MainTabs({ route, userList, userPostList , onUpdate, onA
           )
         }}
       >
-        {(props) => <Profile {...props} onUpdate={onUpdate} userData={loginUser} />}
+        {(props) => <Profile {...props} userData={loginUser} />}
       </Tab.Screen>
 
       <Tab.Screen
@@ -53,8 +53,8 @@ export default function MainTabs({ route, userList, userPostList , onUpdate, onA
             <Ionicons name="settings" size={size} color={color} />
           )
         }}
+        component={Settings}
       >
-        {(props) => <Settings {...props} onClearData={onClearData} />}
       </Tab.Screen>
     </Tab.Navigator>
   );

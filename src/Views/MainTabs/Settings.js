@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { 
     StyleSheet, 
     Text,
-    TouchableOpacity
+    TouchableOpacity,
+    Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { clearAllData } from '../../database';
 
 export default function Settings({ navigation, onClearData }) {
     const logout = () => {
@@ -12,9 +14,15 @@ export default function Settings({ navigation, onClearData }) {
     }
 
     const onClearPress = () => {
-        onClearData();
-        logout();
-    }
+        const isSuccess = clearAllData();
+
+        if (isSuccess) {
+            Alert.alert("Succes", "Clear data successfully!");
+            logout(); 
+        } else {
+            Alert.alert("Error", "Clear data fail.");
+        }
+    }    
 
     return (
         <SafeAreaView style={styles.container}>

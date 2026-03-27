@@ -8,6 +8,7 @@ import {
   Alert 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { addUser } from '../database';
 
 export default function Register({ navigation, onRegister }) {
     const [userName, setUserName] = useState('');
@@ -15,21 +16,21 @@ export default function Register({ navigation, onRegister }) {
     const [regPassword, setRegPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleCreatePress = () => {
+    const handleCreatePress = async () => {
         if (userName && regEmail && regPassword && confirmPassword) {
             if (regPassword !== confirmPassword) {
                 Alert.alert("Error", "Passwords do not match!");
                 return;
             }
+            
+            const isSuccess = await addUser(userName, regEmail, regPassword);
 
-            if (!onRegister({ 
-                userName: userName,
-                email: regEmail,
-                password: regPassword
-            })) return;
-
-            Alert.alert("Success", "Account created successfully!");
-            navigation.navigate('Login');
+            if (isSuccess) {
+                Alert.alert("Success", "Account created successfully!");
+                navigation.navigate('Login');
+            } else {
+                Alert.alert("Error", "This email has been used or an error occurred!");
+            }
         } else {
             Alert.alert("Error", "Please fill in all fields!");
         }

@@ -23,7 +23,7 @@ const PostItem = ({ item }) => {
         <View style={styles.postContainer}>
             <View style={styles.postHeader}>
                 <Text style={styles.userName}>{item.userName}</Text>
-                <Text style={styles.postDate}>{item.date}</Text> 
+                <Text style={styles.postDate}>{new Date(item.date).toLocaleDateString()}</Text> 
             </View>
 
             <View style={styles.postContent}>
@@ -50,6 +50,7 @@ export default function HomePage({ navigation, route, userPostList, userData, on
     const [inputText, setInputText] = useState('');
 
     const allPosts = userPostList ? userPostList.flatMap(user => user.posts) : [];
+    const sortedPosts = [...allPosts].sort((postA, postB) => postB.date - postA.date);
     
     const handlePost = () => {
         if (inputText.trim().length === 0) {
@@ -60,7 +61,7 @@ export default function HomePage({ navigation, route, userPostList, userData, on
         const newPost = {
             id: Math.random().toString(36).substring(7),
             userName: userData?.userName || "User",
-            date: new Date().toLocaleDateString(),
+            date: new Date().getTime(),
             description: inputText
         };
 
@@ -86,7 +87,7 @@ export default function HomePage({ navigation, route, userPostList, userData, on
             </View>
 
             <FlatList
-                data={allPosts}
+                data={sortedPosts}
                 renderItem={({ item }) => <PostItem item={item} />}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} 

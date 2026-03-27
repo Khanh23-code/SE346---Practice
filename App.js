@@ -44,6 +44,19 @@ export default function App() {
     }
   }, [userPostList, isReady]);
 
+  const clearData = async () => {
+    try {
+        await AsyncStorage.clear(); 
+        
+        setUserList([]);
+        setUserPostList([]);
+        
+        Alert.alert("Success", "All data has been deleted!");
+    } catch (e) {
+        console.log("Error while trying to delete data:", e);
+    }
+  }
+
   // const printAllStorageData = async () => {
   //   try {
   //     // 1. Lấy tất cả các "Nhãn" (Keys) đang có trong ổ cứng
@@ -107,7 +120,7 @@ export default function App() {
         if (user.email === userData.email) {
           return {
             ...user,
-            posts: [newPost, ...user.posts]
+            posts: [...user.posts, newPost]
           };
         }
         return user;
@@ -132,6 +145,7 @@ export default function App() {
               userPostList={userPostList}
               onUpdate={updateUserData} 
               onAddPost={addNewPost}
+              onClearData={clearData}
             />
           )}
         </Stack.Screen>

@@ -10,7 +10,7 @@ import Settings from './MainTabs/Settings';
 
 const Tab = createBottomTabNavigator();
 
-export default function MainTabs({ route, userList, userPostList , onUpdate, onAddPost }) {
+export default function MainTabs({ route, userList, userPostList , onUpdate, onAddPost, onClearData }) {
   const loginUser = route.params?.userData || {};
 
   return (
@@ -47,14 +47,15 @@ export default function MainTabs({ route, userList, userPostList , onUpdate, onA
 
       <Tab.Screen
         name="Settings"
-        component={Settings}
         options={{
           tabBarLabel: "Settings",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings" size={size} color={color} />
           )
         }}
-      />
+      >
+        {(props) => <Settings {...props} onClearData={onClearData} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

@@ -6,15 +6,23 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Settings({ navigation }) {
+export default function Settings({ navigation, onClearData }) {
     const logout = () => {
         navigation.navigate('Login');
     }
 
+    const onClearPress = () => {
+        onClearData();
+        logout();
+    }
+
     return (
         <SafeAreaView style={styles.container}>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText} onPress={logout}>Logout</Text>
+            <TouchableOpacity style={styles.button} onPress={logout}>
+                <Text style={styles.buttonText}>Logout</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={onClearPress}>
+                <Text style={styles.buttonText}>Clear Data</Text>
             </TouchableOpacity>
         </SafeAreaView>
     )
@@ -33,6 +41,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
+        marginVertical: 10,
     },
 
     buttonText: {

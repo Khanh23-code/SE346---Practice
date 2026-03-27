@@ -57,28 +57,6 @@ export default function App() {
     }
   }
 
-  // const printAllStorageData = async () => {
-  //   try {
-  //     // 1. Lấy tất cả các "Nhãn" (Keys) đang có trong ổ cứng
-  //     const keys = await AsyncStorage.getAllKeys();
-      
-  //     // 2. Lấy toàn bộ dữ liệu dựa trên đống Keys đó
-  //     const result = await AsyncStorage.multiGet(keys);
-
-  //     console.log("=== DỮ LIỆU TRONG ASYNC STORAGE ===");
-      
-  //     // 3. In ra cho đẹp và dễ đọc
-  //     result.forEach(([key, value]) => {
-  //         console.log(`🔑 KHÓA: ${key}`);
-  //         console.log(`📦 DỮ LIỆU:`, JSON.parse(value)); 
-  //         console.log("-----------------------------------");
-  //     });
-        
-  //   } catch (error) {
-  //     console.error("Lỗi khi đọc toàn bộ Storage:", error);
-  //   }
-  // }
-
   const checkEmailExist = (newUser) => {
     for (var user of userList) {
       if (newUser.email == user.email) return true;

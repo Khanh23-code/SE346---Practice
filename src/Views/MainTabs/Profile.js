@@ -9,7 +9,7 @@ import {
   Image,
   Alert
 } from 'react-native';
-import { updateUser } from '../../database';
+import { updateUser, DEFAULT_AVATAR } from '../../database';
 
 export default function Profile({ navigation, route, userData }) {
     const [info, setInfo] = useState(userData || {});
@@ -45,14 +45,14 @@ export default function Profile({ navigation, route, userData }) {
                         { avatarUrl ? (
                             <Image source={{ uri: avatarUrl }} style={styles.avatar} />
                         ) : (
-                            <Image source={{ uri: 'https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-circle-icon.png' }} style={styles.avatar} />
+                            <Image source={{ uri: DEFAULT_AVATAR }} style={styles.avatar} />
                         )}
                     </View>
 
                     <View style={styles.block}>
                         <Text style={styles.label}>Username</Text>
                         <TextInput 
-                            style={[styles.textInput, styles.none_editable]} 
+                            style={[styles.textInput, styles.none_editable]}
                             placeholder='username'
                             value={info.userName}
                             editable={false}/>

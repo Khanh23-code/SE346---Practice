@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 
+export const DEFAULT_AVATAR = "https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-circle-icon.png";
 const db = SQLite.openDatabaseSync('DemoAppDB.db');
 
 export const initDB = () => {
@@ -33,7 +34,7 @@ export const addUser = (userName, email, password) => {
   try {
     db.runSync(
       'INSERT INTO Users (userName, email, password, address, avatarUrl, description) VALUES (?, ?, ?, ?, ?, ?)',
-      [userName, email, password, '', '', '']
+      [userName, email, password, '', DEFAULT_AVATAR, '']
     );
     return true; 
   } 

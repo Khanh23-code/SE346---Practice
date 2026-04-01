@@ -6,13 +6,19 @@ import {
     FlatList,
     TextInput,
     TouchableOpacity,
-    Alert
+    Alert,
+    Image
 } from 'react-native';
-import { addPost, getAllPosts } from '../../database';
+import { addPost, getAllPosts, DEFAULT_AVATAR } from '../../database';
+
+import Feather from '@expo/vector-icons/Feather';
+import Entypo from '@expo/vector-icons/Entypo';
+
 
 const PostItem = ({ item }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showReadMore, setShowReadMore] = useState(false);
+    const [isLove, setIsLove] = useState(false);
 
     const handleTextLayout = useCallback((e) => {
         if (e.nativeEvent.lines.length >= 3 && !showReadMore) {
@@ -23,8 +29,17 @@ const PostItem = ({ item }) => {
     return (
         <View style={styles.postContainer}>
             <View style={styles.postHeader}>
-                <Text style={styles.userName}>{item.userName}</Text>
-                <Text style={styles.postDate}>{new Date(item.date).toLocaleDateString()}</Text> 
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Image
+                        source={{ uri: item.avatarUrl }}
+                        style={styles.postAvatar}
+                    />
+                    <View style={styles.userInfo}>
+                        <Text style={styles.userName}>{item.userName}</Text>
+                        <Text style={styles.postDate}>{new Date(item.date).toLocaleDateString()}</Text> 
+                    </View>
+                </View>
+                <Feather name="more-horizontal" size={24} color="gray" />
             </View>
 
             <View style={styles.postContent}>
@@ -42,6 +57,19 @@ const PostItem = ({ item }) => {
                         </Text>
                     </TouchableOpacity>
                 )}
+            </View>
+
+            <View style={styles.postActions}>
+                <TouchableOpacity 
+                    style={styles.actionButton} 
+                    onPress={() => setIsLove(!isLove)} 
+                >
+                    {isLove ? (
+                        <Entypo name="heart" size={24} color="#ff69b4" />
+                    ) : (
+                        <Entypo name="heart-outlined" size={24} color="gray" />
+                    )}
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -169,6 +197,19 @@ const styles = StyleSheet.create({
         paddingBottom: 8,
     },
 
+    postAvatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 12, 
+        backgroundColor: '#e0e0e0',
+    },
+
+    userInfo: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
+
     userName: {
         fontSize: 16,
         fontWeight: '700',
@@ -194,5 +235,19 @@ const styles = StyleSheet.create({
         color: '#c5c5c5',
         fontWeight: '600',
         marginTop: 5,
-    }
+    },
+
+    postActions: {
+        flexDirection: 'row',
+        marginTop: 12,
+        paddingTop: 12,
+        borderTopWidth: 0.5,
+        borderTopColor: '#f0f0f0', 
+    },
+
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 15, 
+    },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'; 
+import React, { useState, useCallback, useEffect } from 'react'; 
 import { 
     StyleSheet, 
     Text, 
@@ -9,17 +9,30 @@ import {
     Alert,
     Image
 } from 'react-native';
-import { addPost, getAllPosts, DEFAULT_AVATAR, updatePostLove } from '../../database';
+import { addPost, getAllPosts, updatePostLove, addComment, getCommentsByPostId } from '../../database';
 import { useFocusEffect } from '@react-navigation/native';
 
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-const PostItem = ({ item }) => {
+const PostItem = ({ item, currentUser }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showReadMore, setShowReadMore] = useState(false);
     const [isLove, setIsLove] = useState(item.isLove === 1);
+
+    const [comments, setComments] = useState([]); 
+    const [isShowComments, setIsShowComments] = useState(false);
+    const [commentText, setCommentText] = useState(''); 
+
+    useEffect(() => {
+        loadComments();
+    }, []);
+
+    const loadComments = () => {
+        const fetchedComments = getCommentsByPostId(item.id);
+        setComments(fetchedComments);
+    };
 
     const handleTextLayout = useCallback((e) => {
         if (e.nativeEvent.lines.length >= 3 && !showReadMore) {
@@ -31,7 +44,21 @@ const PostItem = ({ item }) => {
         const newValue = !isLove;
         setIsLove(newValue);
         updatePostLove(item.id, newValue);
-    }
+    };
+
+    const handleSendComment = () => {
+        if (commentText.trim().length === 0) return;
+        
+        const commenterName = currentUser?.userName || "Unknown"; 
+        const newDate = new Date().getTime();
+        
+        const success = addComment(item.id, commenterName, newDate, commentText);
+        
+        if (success) {
+            setCommentText(''); 
+            loadComments(); 
+        }
+    };
 
     return (
         <View style={styles.postContainer}>
@@ -79,11 +106,48 @@ const PostItem = ({ item }) => {
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={styles.actionButton} 
-                    onPress={handleLovePress} 
+                    onPress={() => setIsShowComments(!isShowComments)}
                 >
-                    <FontAwesome name="comment-o" size={24} color="#201f85" />
+                    {isShowComments ? (
+                        <FontAwesome name="comment" size={24} color="#7977e2" />
+                    ) : (
+                        <FontAwesome name="comment-o" size={24} color="gray" />
+                    )}
                 </TouchableOpacity>
             </View>
+
+            {isShowComments && (
+                <View>
+                    {comments.length > 0 && (
+                        <View style={styles.commentsSection}>
+                            {comments.map((cmt) => (
+                                <View key={cmt.id} style={styles.commentItem}>
+                                    <View style={styles.commentHeader}>
+                                        <Text style={styles.commentUserName}>{cmt.userName}</Text>
+                                        <Text style={styles.commentDate}>
+                                            {new Date(cmt.date).toLocaleString()}
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.commentText}>{cmt.description}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    <View style={styles.commentInputContainer}>
+                        <TextInput
+                            style={styles.commentInput}
+                            placeholder="Write a comment..."
+                            value={commentText}
+                            onChangeText={setCommentText}
+                            autoFocus={true} 
+                        />
+                        <TouchableOpacity style={styles.sendButton} onPress={handleSendComment}>
+                            <Text style={styles.sendButtonText}>Send</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 };
@@ -140,7 +204,7 @@ export default function HomePage({ userData }) {
 
             <FlatList
                 data={posts}
-                renderItem={({ item }) => <PostItem item={item} />}
+                renderItem={({ item }) => <PostItem item={item} currentUser={userData} />}
                 keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
                 contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} 
             />
@@ -264,5 +328,70 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingRight: 15, 
+    },
+
+    commentsSection: {
+        marginTop: 10,
+        paddingTop: 10,
+        borderTopWidth: 0.5,
+        borderTopColor: '#f0f0f0',
+    },
+
+    commentItem: {
+        backgroundColor: '#f9fafb',
+        padding: 10,
+        borderRadius: 10,
+        marginBottom: 8,
+    },
+
+    commentHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4, 
+    },
+
+    commentUserName: {
+        fontWeight: 'bold',
+        fontSize: 13,
+        color: '#111827',
+    },
+
+    commentDate: {
+        fontSize: 11,
+        color: '#9ca3af',
+    },
+
+    commentText: {
+        fontSize: 14,
+        color: '#4b5563',
+    },
+
+    commentInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+
+    commentInput: {
+        flex: 1,
+        backgroundColor: '#f3f4f6',
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        marginRight: 10,
+        fontSize: 14,
+    },
+
+    sendButton: {
+        backgroundColor: '#7977e2',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+
+    sendButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
 });

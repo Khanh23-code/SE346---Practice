@@ -115,11 +115,37 @@ export const getAllPosts = () => {
   }
 };
 
+export const addComment = (postId, userName, date, description) => {
+  try {
+    db.runSync(
+      'INSERT INTO Comments (postId, userName, date, description, isLove) VALUES (?, ?, ?, ?, 0)',
+      [postId, userName, date, description]
+    );
+    return true;
+  } catch (error) {
+    console.log("Error while adding comment:", error);
+    return false;
+  }
+};
+
+export const getCommentsByPostId = (postId) => {
+  try {
+    return db.getAllSync(
+      'SELECT * FROM Comments WHERE postId = ? ORDER BY date DESC',
+      [postId]
+    );
+  } catch (error) {
+    console.log("Error while getting comments:", error);
+    return [];
+  }
+};
+
 export const clearAllData = () => {
   try {
     db.execSync(`
       DROP TABLE IF EXISTS Users;
       DROP TABLE IF EXISTS Posts;
+      DROP TABLE IF EXISTS Comments;
     `);
     return true;
   } catch (error) {

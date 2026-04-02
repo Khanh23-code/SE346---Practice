@@ -6,7 +6,7 @@ import {
     Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { clearAllData } from '../../database';
+import { initDB, clearAllData } from '../../database';
 
 export default function Settings({ navigation, onClearData }) {
     const logout = () => {

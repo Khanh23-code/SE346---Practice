@@ -18,9 +18,19 @@ export const initDB = () => {
       
       CREATE TABLE IF NOT EXISTS Posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userEmail TEXT NOT NULL,
+        userName TEXT NOT NULL,
         date INTEGER NOT NULL,
-        description TEXT NOT NULL
+        description TEXT NOT NULL,
+        isLove INTEGER DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS Comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        postId INTEGER NOT NULL,
+        userName TEXT NOT NULL,
+        date INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        isLove INTEGER DEFAULT 0
       );
     `);
     console.log("Init database successfully!");
@@ -54,11 +64,11 @@ export const getUserByEmail = (email) => {
   }
 };
 
-export const updateUser = (email, address, avatarUrl, description) => {
+export const updateUser = (userName, address, avatarUrl, description) => {
   try {
     db.runSync(
-      'UPDATE Users SET address = ?, avatarUrl = ?, description = ? WHERE email = ?',
-      [address, avatarUrl, description, email]
+      'UPDATE Users SET address = ?, avatarUrl = ?, description = ? WHERE userName = ?',
+      [address, avatarUrl, description, userName]
     );
     return true; 
   } catch (error) {
@@ -67,22 +77,36 @@ export const updateUser = (email, address, avatarUrl, description) => {
   }
 };
 
-export const addPost = (userEmail, date, description) => {
+export const addPost = (userName, date, description) => {
   try {
     db.runSync(
-      'INSERT INTO Posts (userEmail, date, description) VALUES (?, ?, ?)',
-      [userEmail, date, description]
+      'INSERT INTO Posts (userName, date, description, isLove) VALUES (?, ?, ?, 0)',
+      [userName, date, description]
     );
   } catch (error) {
     console.log("Error while adding a post:", error);
   }
 };
+
+export const updatePostLove = (postId, isLove) => {
+  try {
+    db.runSync(
+      'UPDATE Posts SET isLove = ? WHERE id = ?',
+      [isLove ? 1 : 0, postId] 
+    );
+    return true;
+  } catch (error) {
+    console.log("Error while updating like:", error);
+    return false;
+  }
+};
+
 export const getAllPosts = () => {
   try {
     return db.getAllSync(`
       SELECT Posts.*, Users.userName, Users.avatarUrl 
       FROM Posts 
-      INNER JOIN Users ON Posts.userEmail = Users.email 
+      INNER JOIN Users ON Posts.userName = Users.userName 
       ORDER BY Posts.date DESC
     `);
   } catch (error) {
@@ -94,8 +118,8 @@ export const getAllPosts = () => {
 export const clearAllData = () => {
   try {
     db.execSync(`
-      DELETE FROM Users;
-      DELETE FROM Posts;
+      DROP TABLE IF EXISTS Users;
+      DROP TABLE IF EXISTS Posts;
     `);
     return true;
   } catch (error) {

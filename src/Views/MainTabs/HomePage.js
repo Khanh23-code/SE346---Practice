@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'; 
+import React, { useState, useCallback } from 'react'; 
 import { 
     StyleSheet, 
     Text, 
@@ -9,22 +9,29 @@ import {
     Alert,
     Image
 } from 'react-native';
-import { addPost, getAllPosts, DEFAULT_AVATAR } from '../../database';
+import { addPost, getAllPosts, DEFAULT_AVATAR, updatePostLove } from '../../database';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const PostItem = ({ item }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showReadMore, setShowReadMore] = useState(false);
-    const [isLove, setIsLove] = useState(false);
+    const [isLove, setIsLove] = useState(item.isLove === 1);
 
     const handleTextLayout = useCallback((e) => {
         if (e.nativeEvent.lines.length >= 3 && !showReadMore) {
             setShowReadMore(true);
         }
     }, [showReadMore]);
+
+    const handleLovePress = () => {
+        const newValue = !isLove;
+        setIsLove(newValue);
+        updatePostLove(item.id, newValue);
+    }
 
     return (
         <View style={styles.postContainer}>
@@ -62,7 +69,7 @@ const PostItem = ({ item }) => {
             <View style={styles.postActions}>
                 <TouchableOpacity 
                     style={styles.actionButton} 
-                    onPress={() => setIsLove(!isLove)} 
+                    onPress={handleLovePress} 
                 >
                     {isLove ? (
                         <Entypo name="heart" size={24} color="#ff69b4" />
@@ -70,12 +77,18 @@ const PostItem = ({ item }) => {
                         <Entypo name="heart-outlined" size={24} color="gray" />
                     )}
                 </TouchableOpacity>
+                <TouchableOpacity 
+                    style={styles.actionButton} 
+                    onPress={handleLovePress} 
+                >
+                    <FontAwesome name="comment-o" size={24} color="#201f85" />
+                </TouchableOpacity>
             </View>
         </View>
     );
 };
 
-export default function HomePage({ navigation, route, userPostList, userData, onAddPost }) {
+export default function HomePage({ userData }) {
     const [inputText, setInputText] = useState('');
     const [posts, setPosts] = useState([]);
     
@@ -84,9 +97,11 @@ export default function HomePage({ navigation, route, userPostList, userData, on
         setPosts(fetchedPosts);
     };
 
-    useEffect(() => {
-        loadPosts();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            loadPosts();
+        }, [])
+    );
 
     const handlePost = () => {
         if (inputText.trim().length === 0) {
@@ -96,8 +111,8 @@ export default function HomePage({ navigation, route, userPostList, userData, on
 
         const newDate = new Date().getTime();
 
-        if (userData && userData.email) {
-            addPost(userData.email, newDate, inputText);
+        if (userData && userData.userName) {
+            addPost(userData.userName, newDate, inputText);
             
             setInputText('');
             loadPosts();

@@ -5,10 +5,13 @@ import {
   View, 
   TextInput, 
   TouchableOpacity,
-  Alert 
-} from 'react-native';
+  Alert, 
+  ActivityIndicator
+} 
+from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { addUser } from '../database';
+import { api } from '../api';
 
 export default function Register({ navigation, onRegister }) {
     const [userName, setUserName] = useState('');
@@ -16,23 +19,28 @@ export default function Register({ navigation, onRegister }) {
     const [regPassword, setRegPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleCreatePress = async () => {
-        if (userName && regEmail && regPassword && confirmPassword) {
-            if (regPassword !== confirmPassword) {
-                Alert.alert("Error", "Passwords do not match!");
-                return;
-            }
-            
-            const isSuccess = await addUser(userName, regEmail, regPassword);
+    const [isLoading, setIsLoading] = useState(false);
 
-            if (isSuccess) {
-                Alert.alert("Success", "Account created successfully!");
-                navigation.navigate('Login');
-            } else {
-                Alert.alert("Error", "This email has been used or an error occurred!");
-            }
-        } else {
+    const handleCreatePress = async () => {
+        if (!userName || !regEmail || !regPassword || !confirmPassword) {
             Alert.alert("Error", "Please fill in all fields!");
+            return;
+        }
+
+        if (regPassword !== confirmPassword) {
+            Alert.alert("Error", "Passwords do not match!");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            await api.register(regEmail, regPassword, userName, "");
+            Alert.alert("Success", "Account created successfully!");
+            navigation.navigate('Login');
+        } catch (error) {
+            Alert.alert("Error", "An error occurred while creating the account.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -48,6 +56,7 @@ export default function Register({ navigation, onRegister }) {
                         placeholder='test'
                         value={userName}
                         onChangeText={(text) => setUserName(text)}
+                        editable={!isLoading}
                     />
                 </View>
                 
@@ -57,8 +66,10 @@ export default function Register({ navigation, onRegister }) {
                         style={styles.textInput} 
                         placeholder='test@gmail.com' 
                         keyboardType='email-address'
+                        autoCapitalize="none"
                         value={regEmail}
                         onChangeText={(text) => setRegEmail(text)}
+                        editable={!isLoading}
                     />
                 </View>
         
@@ -70,6 +81,7 @@ export default function Register({ navigation, onRegister }) {
                         secureTextEntry={true}
                         value={regPassword}
                         onChangeText={(text) => setRegPassword(text)}
+                        editable={!isLoading}
                     />
                 </View>
         
@@ -81,6 +93,7 @@ export default function Register({ navigation, onRegister }) {
                         secureTextEntry={true}
                         value={confirmPassword}
                         onChangeText={(text) => setConfirmPassword(text)}
+                        editable={!isLoading}
                     />
                 </View>
 
@@ -88,8 +101,16 @@ export default function Register({ navigation, onRegister }) {
                     <Text style={styles.loginButtonText}>Login</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.button} onPress={handleCreatePress}>
-                    <Text style={styles.buttonText}>Create</Text>
+                <TouchableOpacity 
+                    style={styles.button} 
+                    onPress={handleCreatePress} disabled={isLoading}
+                    editable={!isLoading}
+                >
+                    {isLoading ? (
+                        <ActivityIndicator color="#ffffff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Create</Text>
+                    )}
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

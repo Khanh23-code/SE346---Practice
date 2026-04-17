@@ -5,36 +5,39 @@ import {
   View, 
   TextInput, 
   TouchableOpacity,
-  Alert 
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserByEmail } from '../database';
+import { api } from '../api';
 
 export default function Login({ navigation }) {
     const [logEmail, setLogEmail] = useState('');
     const [logPassword, setLogPassword] = useState('');
 
-    const handleLoginPress = () => {
-        if (logEmail && logPassword) {
-            const user = getUserByEmail(logEmail);
+    const [isLoading, setIsLoading] = useState(false);
 
-            if (!user) {
-                Alert.alert("Error", "Email and password do not match!");
-                return;
-            }
-
-            if (user) {
-                if (logPassword === user.password) {
-                    Alert.alert("Success", "Login successful!");
-                    navigation.navigate('MainTabs', { userData: user });
-                } else {
-                    Alert.alert("Error", "Invalid email or password!");
-                }
-            } else {
-                Alert.alert("Error", "User does not exist!");
-            }
-        } else {
+    const handleLoginPress = async () => {
+        if (!logEmail || !logPassword) {
             Alert.alert("Error", "Please fill in all fields!");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const loginResponse = await api.login(logEmail, logPassword);
+
+            const userData = {
+                email: logEmail,
+                name: loginResponse.name
+            }
+
+            navigation.navigate('MainTabs', { userData: userData });
+        } catch (error) {
+            Alert.alert("Error", "Invalid email or password!");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -49,8 +52,10 @@ export default function Login({ navigation }) {
                         style={styles.textInput} 
                         placeholder='test@gmail.com' 
                         keyboardType='email-address'
+                        autoCapitalize="none"
                         value={logEmail}
                         onChangeText={(text) => setLogEmail(text)}
+                        editable={!isLoading}
                     />
                 </View>
                 
@@ -62,14 +67,23 @@ export default function Login({ navigation }) {
                         secureTextEntry={true}
                         value={logPassword}
                         onChangeText={(text) => setLogPassword(text)}
+                        editable={!isLoading}
                     />
                     <View style={styles.linkSection}>
-                        <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
+                        <TouchableOpacity 
+                            style={styles.registerButton} 
+                            onPress={() => navigation.navigate('Register')}
+                            disabled={isLoading}
+                        >
                             <Text style={styles.linkText}>
                                 Register
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.forgotButton} onPress={() => navigation.navigate('Register')}>
+                        <TouchableOpacity 
+                            style={styles.forgotButton} 
+                            onPress={() => navigation.navigate('Register')}
+                            disabled={isLoading}
+                        >
                             <Text style={styles.linkText}>
                                 Forgot Password?
                             </Text>
@@ -77,8 +91,16 @@ export default function Login({ navigation }) {
                     </View>
                 </View>
                 
-                <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
-                    <Text style={styles.buttonText}>Sign in</Text>
+                <TouchableOpacity 
+                    style={styles.button} 
+                    onPress={handleLoginPress} 
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <ActivityIndicator color="#ffffff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Sign in</Text>
+                    )}
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

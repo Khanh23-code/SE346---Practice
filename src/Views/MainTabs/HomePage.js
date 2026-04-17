@@ -7,19 +7,25 @@ import {
     TextInput,
     TouchableOpacity,
     Alert,
-    Image
+    Image,
+    ActivityIndicator
 } from 'react-native';
 import { addPost, getAllPosts, updatePostLove, addComment, getCommentsByPostId } from '../../database';
 import { useFocusEffect } from '@react-navigation/native';
+import { api } from '../../api';
 
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+const DUMMY_AVATAR = "https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-circle-icon.png";
+
 const PostItem = ({ item, currentUser }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showReadMore, setShowReadMore] = useState(false);
-    const [isLove, setIsLove] = useState(item.isLove === 1);
+    
+    // const [isLove, setIsLove] = useState(item.isLove === 1);
+    const [isLove, setIsLove] = useState(false);
 
     const [comments, setComments] = useState([]); 
     const [isShowComments, setIsShowComments] = useState(false);
@@ -41,36 +47,51 @@ const PostItem = ({ item, currentUser }) => {
     }, [showReadMore]);
 
     const handleLovePress = () => {
-        const newValue = !isLove;
-        setIsLove(newValue);
-        updatePostLove(item.id, newValue);
+        setIsLove(!isLove);
+        // updatePostLove(item.id, newValue);
     };
 
     const handleSendComment = () => {
         if (commentText.trim().length === 0) return;
+
+        const newComment = {
+            id: Date.now().toString(),
+            userName: currentUser?.userName || "Tôi",
+            description: commentText,
+            date: new Date().toISOString()
+        };
+
+        setComments(prevComments => [newComment, ...prevComments]);
+        setCommentText('');
         
-        const commenterName = currentUser?.userName || "Unknown"; 
-        const newDate = new Date().getTime();
+        // const commenterName = currentUser?.userName || "Unknown"; 
+        // const newDate = new Date().getTime();
         
-        const success = addComment(item.id, commenterName, newDate, commentText);
+        // const success = addComment(item.id, commenterName, newDate, commentText);
         
-        if (success) {
-            setCommentText(''); 
-            loadComments(); 
-        }
+        // if (success) {
+        //     setCommentText(''); 
+        //     loadComments(); 
+        // }
     };
+
+    const formattedDate = item.created_at ? new Date(item.created_at).toLocaleDateString() : "Recent";
 
     return (
         <View style={styles.postContainer}>
             <View style={styles.postHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Image
+                    {/* <Image
                         source={{ uri: item.avatarUrl }}
+                        style={styles.postAvatar}
+                    /> */}
+                    <Image
+                        source={{ uri: DUMMY_AVATAR }}
                         style={styles.postAvatar}
                     />
                     <View style={styles.userInfo}>
-                        <Text style={styles.userName}>{item.userName}</Text>
-                        <Text style={styles.postDate}>{new Date(item.date).toLocaleDateString()}</Text> 
+                        <Text style={styles.userName}>{item.creator_name || "Unknown"}</Text>
+                        <Text style={styles.postDate}>{formattedDate}</Text> 
                     </View>
                 </View>
                 <Feather name="more-horizontal" size={24} color="gray" />
@@ -104,6 +125,7 @@ const PostItem = ({ item, currentUser }) => {
                         <Entypo name="heart-outlined" size={24} color="gray" />
                     )}
                 </TouchableOpacity>
+                
                 <TouchableOpacity 
                     style={styles.actionButton} 
                     onPress={() => setIsShowComments(!isShowComments)}
@@ -155,10 +177,23 @@ const PostItem = ({ item, currentUser }) => {
 export default function HomePage({ userData }) {
     const [inputText, setInputText] = useState('');
     const [posts, setPosts] = useState([]);
+
+    const [isPosting, setIsPosting] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
     
-    const loadPosts = () => {
-        const fetchedPosts = getAllPosts();
-        setPosts(fetchedPosts);
+    const loadPosts = async () => {
+        setIsFetching(true);
+        try {
+            const fetchedPosts = await api.getAllPosts();
+
+            if (Array.isArray(fetchedPosts)) {
+                setPosts(fetchedPosts);
+            }
+        } catch (error) {
+            Alert.alert("Error", "Failed to fetch posts.");
+        } finally {
+            setIsFetching(false);
+        } 
     };
 
     useFocusEffect(
@@ -167,22 +202,32 @@ export default function HomePage({ userData }) {
         }, [])
     );
 
-    const handlePost = () => {
+    const handlePost = async () => {
         if (inputText.trim().length === 0) {
-            Alert.alert("Alert", "The description cannot be empty!");
+            Alert.alert("Error", "Post content cannot be empty!");
             return;
         }
 
-        const newDate = new Date().getTime();
+        if (!userData || !userData.email) {
+            Alert.alert("Error", "User data is missing. Please log in again.");
+            return;
+        }
 
-        if (userData && userData.userName) {
-            addPost(userData.userName, newDate, inputText);
-            
-            setInputText('');
+        setIsPosting(true);
+        try {
+            let generatedTitle = inputText.trim();
+            if (generatedTitle.length > 20) {
+                generatedTitle = generatedTitle.substring(0, 20) + "...";
+            }
+
+            await api.createPost(generatedTitle, inputText, userData.email)
+
+            setInputText("");
             loadPosts();
-        } 
-        else {
-            Alert.alert("Error", "User session expired. Please login again.");
+        } catch (error) {
+            Alert.alert("Error", "Failed to create post.");
+        } finally {
+            setIsPosting(false);
         }
     };
 
@@ -196,14 +241,25 @@ export default function HomePage({ userData }) {
                     value={inputText}
                     onChangeText={setInputText}
                     multiline
+                    editable={!isPosting}
                 />
-                <TouchableOpacity style={styles.postButton} onPress={handlePost}>
-                    <Text style={styles.postButtonText}>Post</Text>
+                <TouchableOpacity 
+                    style={[styles.postButton, isPosting && { opacity: 0.7 }]} 
+                    onPress={handlePost}
+                    disabled={isPosting}
+                >
+                    {isPosting ? (
+                        <ActivityIndicator color="#ffffff" size="small" />
+                    ) : (
+                        <Text style={styles.postButtonText}>Post</Text>
+                    )}
                 </TouchableOpacity>
             </View>
 
             <FlatList
                 data={posts}
+                refreshing={isFetching}
+                onRefresh={loadPosts}
                 renderItem={({ item }) => <PostItem item={item} currentUser={userData} />}
                 keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
                 contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} 

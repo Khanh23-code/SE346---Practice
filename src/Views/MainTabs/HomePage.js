@@ -20,7 +20,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const DUMMY_AVATAR = "https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-circle-icon.png";
 
-const PostItem = ({ item, currentUser }) => {
+const PostItem = ({ item, currentUser, onDeleteSuccess }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showReadMore, setShowReadMore] = useState(false);
     
@@ -30,6 +30,10 @@ const PostItem = ({ item, currentUser }) => {
     const [comments, setComments] = useState([]); 
     const [isShowComments, setIsShowComments] = useState(false);
     const [commentText, setCommentText] = useState(''); 
+
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const isMyPost = currentUser?.email === item.creator_email;
 
     useEffect(() => {
         loadComments();
@@ -45,6 +49,33 @@ const PostItem = ({ item, currentUser }) => {
             setShowReadMore(true);
         }
     }, [showReadMore]);
+
+    const handleDeletePress = () => {
+        Alert.alert(
+            "Confirm Delete",
+            "Are you sure you want to delete this post?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        setIsDeleting(true);
+                        try {
+                            await api.deletePost(item.id);
+                            onDeleteSuccess();
+                        } catch (error) {
+                            Alert.alert("Error", "Failed to delete post.");
+                            setIsDeleting(false);
+                        }
+                    }
+                }
+            ]
+        );
+    };
 
     const handleLovePress = () => {
         setIsLove(!isLove);
@@ -94,7 +125,16 @@ const PostItem = ({ item, currentUser }) => {
                         <Text style={styles.postDate}>{formattedDate}</Text> 
                     </View>
                 </View>
-                <Feather name="more-horizontal" size={24} color="gray" />
+
+                {isMyPost && (
+                    <TouchableOpacity onPress={handleDeletePress} disabled={isDeleting} style={{ marginLeft: 10 }}>
+                        {isDeleting ? (
+                            <ActivityIndicator size="small" color="#ff4d4d" />
+                        ) : (
+                            <Feather name="trash-2" size={24} color="gray" />
+                        )}
+                    </TouchableOpacity>
+                )}
             </View>
 
             <View style={styles.postContent}>
@@ -125,7 +165,7 @@ const PostItem = ({ item, currentUser }) => {
                         <Entypo name="heart-outlined" size={24} color="gray" />
                     )}
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity 
                     style={styles.actionButton} 
                     onPress={() => setIsShowComments(!isShowComments)}
@@ -260,7 +300,7 @@ export default function HomePage({ userData }) {
                 data={posts}
                 refreshing={isFetching}
                 onRefresh={loadPosts}
-                renderItem={({ item }) => <PostItem item={item} currentUser={userData} />}
+                renderItem={({ item }) => <PostItem item={item} currentUser={userData} onDeleteSuccess={loadPosts} />}
                 keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
                 contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }} 
             />
